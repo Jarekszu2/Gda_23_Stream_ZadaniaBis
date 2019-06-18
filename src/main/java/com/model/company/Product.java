@@ -1,10 +1,13 @@
 package com.model.company;
 
 import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.ToString;
 
 import java.util.Objects;
-
+@Data
 @AllArgsConstructor
+@ToString
 public class Product {
     private String name; // nazwa produktu
     private double price; // cena produktu

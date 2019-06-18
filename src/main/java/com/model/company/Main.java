@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 public class Main {
     public static void main(String[] args) {
@@ -496,5 +497,93 @@ public class Main {
 // 39. Wypisz jaki produkt poza paliwem cieszy się największą popularnością (zwróć go) (find first)
 // 40. Znajdź produkty które były kupowane zarówno w kilogramach jak i w sztukach
 // 40. Wymyśl 5 ciekawych zapytań i spróbuj je zrealizować. Najciekawsze polecenie otrzyma nagrodę-niespodziankę z Baltimore :P
+
+        System.out.println();
+        System.out.println("Wszystkie firmy");
+        wylistujWszystkieFirmy(companies);
+
+        System.out.println();
+        System.out.println("wszystkie firmy Detroit/Kijów");
+        wylistujWszystkieZDetroit(companies);
+
+        System.out.println();
+        System.out.println("firmy z Londynu posortowane rosnąco po pracownikach");
+        wylistujZLondonPosortowanePoPracownikachRosnąco(companies);
+
+        System.out.println();
+        System.out.println("firmy z Londynu posortowane po zakupach i pracownikach");
+        wylistujLonSortZakupySortPracoww(companies);
+
+        System.out.println();
+        System.out.println("firma z Kijowa zatrudniająca najwięcej pracowników");
+        Optional<Company> optMaxKijev = zwrocCompanyKijevMaxEmployess(companies);
+        if (optMaxKijev.isPresent()) {
+            Company maxKijev = optMaxKijev.get();
+            System.out.println(maxKijev);
+        }
+
+        System.out.println();
+        System.out.println("firma o najkrótszej nazwie");
+        Optional<String> optMinName = zwrocMinName(companies);
+        if (optMinName.isPresent()) {
+            String minName = optMinName.get();
+            System.out.println(minName);
+        }
+
+        System.out.println();
+        System.out.println("firma nie z Kijowa, Londynu i Detroit z najmniejsza liczbą kupionych produktów:");
+        Optional<Company> optnoKLDMinProd = noKiLoDeMinProducts(companies);
+        if (optnoKLDMinProd.isPresent()) {
+            Company noKLDminProd = optnoKLDMinProd.get();
+            System.out.println(noKLDminProd);
+        }
+
+        System.out.println();
+        System.out.println("firmom z Kijowa i Detroit dodano 1-go pracownika");
+        dodajPracownikaKijowDetroit(companies);
+        wylistujZLondonPosortowanePoPracownikachRosnąco(companies);
+    }
+
+    public static void wylistujWszystkieFirmy(List<Company> companies) {
+        companies.stream().forEach(company -> System.out.println(company));
+    }
+
+    public static void wylistujWszystkieZDetroit(List<Company> companies) {
+        companies.stream().filter(company -> company.getCityHeadquarters().equals("Detroit"))
+                .forEach(company -> System.out.println(company.getName() + " " + company.getCityHeadquarters()));
+    }
+
+    public static void wylistujZLondonPosortowanePoPracownikachRosnąco(List<Company> companies) {
+        companies.stream().filter(company -> company.getCityHeadquarters().equals("Kijev"))
+                .sorted((c1, c2) -> Integer.compare(c1.getEmployees(), c2.getEmployees()))
+                .forEach(company -> System.out.println(company.getName() + " " + company.getCityHeadquarters() + " " + company.getEmployees()));
+    }
+
+    public static void wylistujLonSortZakupySortPracoww(List<Company> companies) {
+        companies.stream().filter(company -> company.getCityHeadquarters().equals("London"))
+                .sorted((c1, c2) -> Integer.compare(c1.getPurchaseList().size(), c2.getPurchaseList().size()))
+                .sorted((c1, c2) -> Integer.compare(c1.getEmployees(), c2.getEmployees()))
+                .forEach(company -> System.out.println(company.getName() + " " + company.getPurchaseList().size() + " " + company.getEmployees()));
+    }
+
+    public static Optional<Company> zwrocCompanyKijevMaxEmployess(List<Company> companies) {
+        return companies.stream().filter(company -> company.getCityHeadquarters().equals("Kijev"))
+                .max((c1, c2) -> Integer.compare(c1.getEmployees(), c2.getEmployees()));
+    }
+
+    public static Optional<String> zwrocMinName(List<Company> companies) {
+        return companies.stream().map(company -> company.getName())
+                .min((n1, n2) -> Integer.compare(n1.length(), n2.length()));
+    }
+
+    public static Optional<Company> noKiLoDeMinProducts(List<Company> companies) {
+        return companies.stream()
+                .filter(company -> !company.getName().equals("London") || !company.getName().equals("Detroit") || !company.getName().equals("Kijev"))
+                .min((c1, c2) -> Integer.compare(c1.getPurchaseList().size(), c2.getPurchaseList().size()));
+    }
+
+    public static void dodajPracownikaKijowDetroit(List<Company> companies) {
+        companies.stream().filter(company -> company.getCityHeadquarters().equals("Kijev") || company.getCityHeadquarters().equals("Detroit"))
+                .forEach(company -> company.setEmployees(company.getEmployees() + 1));
     }
 }
