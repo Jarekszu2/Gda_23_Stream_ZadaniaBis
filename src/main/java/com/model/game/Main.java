@@ -1,5 +1,7 @@
 package com.model.game;
 
+import java.util.Scanner;
+
 public class Main {
     public static void main(String[] args) {
         // Stwórz grę do "poruszania się po ekranie"
@@ -88,6 +90,52 @@ public class Main {
         // Dodatkowe rozwinięcie****:
         // stwórz mechanizm wczytywania stanu gry. Stan gry może być wczytany tylko na początku aplikacji ZANIM PODANE BĘDĄ ROZMIARY PLANSZY.
         // Aplikacja pyta o rozmiar planszy i w tym momencie powinniśmy móc załadować planszę. Opracowanie komendy/sposobu przyjęcia polecenia wczytania należy do użytkownika.
+        Gracz gracz = new Gracz(5,5);
 
+        Plansza plansza = new Plansza(10, gracz);
+//        plansza.
+
+//        plansza.drawBox(10);
+
+        System.out.println("Steruj ruchem gracza:");
+        plansza.drawMap();
+        Scanner scanner = new Scanner(System.in);
+        char znak = 'a';
+        do {
+            System.out.println();
+            System.out.println("Wybierz komendę: \na: Move up\nb: Move down\nc: Move left\nd: Move right\n\nq: Quit");
+            znak = scanner.next().charAt(0);
+            switch (znak) {
+
+                case 'a':
+//                    System.out.println("Move up");
+                    try {
+
+                        gracz.moveUp(plansza);
+                    } catch (EndOfWayException e) {
+                        System.out.println(e.getMessage());
+                    }
+                    break;
+                case 'b':
+//                    System.out.println("Move down");
+                    try {
+                        gracz.moveDown(plansza);
+                    } catch (EndOfWayException e) {
+                        System.out.println(e.getMessage());
+                    }
+                    break;
+                case 'c':
+//                    System.out.println("Move left");
+                    gracz.moveDown2();
+                    break;
+                case 'd':
+                    System.out.println("Move up");
+                    break;
+                case 'q':
+                    System.out.println("Quit");
+                    break;
+            }
+            plansza.drawMap();
+        } while (znak != 'q');
     }
 }

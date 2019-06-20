@@ -1,10 +1,9 @@
 package com.model.company;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class Main {
     public static void main(String[] args) {
@@ -542,6 +541,31 @@ public class Main {
         System.out.println("firmom z Kijowa i Detroit dodano 1-go pracownika");
         dodajPracownikaKijowDetroit(companies);
         wylistujZLondonPosortowanePoPracownikachRosnąco(companies);
+
+        // 4. Wylistuj wszystkie firmy z Warszawy. Posortuj je po ilości zakupów (rosnąco) i ilości pracowników (malejąco).
+        System.out.println();
+        wylistujLonSortZakupySortPracoww(companies);
+
+        // 9. ** Zwróć MAPĘ w której kluczem jest nazwa firmy, a wartością ilość pracowników w tej firmie (https://howtodoinjava.com/java8/collect-stream-to-map/)
+//        System.out.println();
+//        Map<String, Integer> mapaNazwaIloscPrac = zwrocMapeNazwaIloscPracownikow(companies);
+//        System.out.println(mapaNazwaIloscPrac);
+
+        // 10.
+
+        // 11. Zwróć firmę która dokonała zakupów na największą kwotę
+        System.out.println();
+        System.out.println("firma, która dokonała zakupów na najwiekszą kwotę: ");
+        Optional<Company> optMaxZakup = zwrocFirmeZakupyNaMaxKwote(companies);
+        if (optMaxZakup.isPresent()) {
+            Company maxZakup = optMaxZakup.get();
+            System.out.println("firma: " + maxZakup.getName() + " " + maxZakup.getCityHeadquarters());
+        }
+
+        // 14. Wypisz firmy które 15 stycznia 2018 kupiły "Network Switch"
+        System.out.println();
+        System.out.println("firmy, które 15.01.2018 kupiły Network Switch: ");
+        zwrocFirmyKtoreKupily15StyczNetworkSwitch(companies);
     }
 
     public static void wylistujWszystkieFirmy(List<Company> companies) {
@@ -554,16 +578,32 @@ public class Main {
     }
 
     public static void wylistujZLondonPosortowanePoPracownikachRosnąco(List<Company> companies) {
-        companies.stream().filter(company -> company.getCityHeadquarters().equals("Kijev"))
+        companies.stream().filter(company -> company.getCityHeadquarters().equals("London"))
                 .sorted((c1, c2) -> Integer.compare(c1.getEmployees(), c2.getEmployees()))
                 .forEach(company -> System.out.println(company.getName() + " " + company.getCityHeadquarters() + " " + company.getEmployees()));
     }
 
     public static void wylistujLonSortZakupySortPracoww(List<Company> companies) {
         companies.stream().filter(company -> company.getCityHeadquarters().equals("London"))
-                .sorted((c1, c2) -> Integer.compare(c1.getPurchaseList().size(), c2.getPurchaseList().size()))
-                .sorted((c1, c2) -> Integer.compare(c1.getEmployees(), c2.getEmployees()))
-                .forEach(company -> System.out.println(company.getName() + " " + company.getPurchaseList().size() + " " + company.getEmployees()));
+                .sorted(new Comparator<Company>() {
+                    @Override
+                    public int compare(Company o1, Company o2) {
+                        if (o1.getPurchaseList().size() < o2.getPurchaseList().size()) {
+                            return  1;
+                        }
+                        if (o1.getPurchaseList().size() > o2.getPurchaseList().size()) {
+                            return  -1;
+                        }
+                        if (o1.getEmployees() < o2.getEmployees()) {
+                            return  1;
+                        }
+                        if (o1.getEmployees() > o2.getEmployees()) {
+                            return  -1;
+                        } else {
+                            return 0;
+                        }
+                    }
+                }).forEach(company -> System.out.println(company.getName() + " " + company.getPurchaseList().size() + " " + company.getEmployees()));
     }
 
     public static Optional<Company> zwrocCompanyKijevMaxEmployess(List<Company> companies) {
@@ -585,5 +625,60 @@ public class Main {
     public static void dodajPracownikaKijowDetroit(List<Company> companies) {
         companies.stream().filter(company -> company.getCityHeadquarters().equals("Kijev") || company.getCityHeadquarters().equals("Detroit"))
                 .forEach(company -> company.setEmployees(company.getEmployees() + 1));
+    }
+
+    // public static OptionalDouble zad11(List<Company> companies) {
+    //     companies
+    //             .stream()
+    //             .max(Comparator.comparingDouble())
+    // }
+
+    // 4. Wylistuj wszystkie firmy z Warszawy. Posortuj je po ilości zakupów (rosnąco) i ilości pracowników (malejąco).
+    public static void wylistujLondonSortedZakupyPracownicy(List<Company> companies) {
+        companies.stream().filter(company -> company.getCityHeadquarters().equals("London"))
+                .sorted(new Comparator<Company>() {
+                    @Override
+                    public int compare(Company o1, Company o2) {
+                        if (o1.getPurchaseList().size() > o2.getPurchaseList().size()) {
+                            return -1;
+                        } else if (o1.getPurchaseList().size() < o2.getPurchaseList().size()) {
+                            return 1;
+                        }
+
+                        if (o1.getEmployees() > o2.getEmployees()) {
+                            return 1;
+                        } else if (o1.getEmployees() < o2.getEmployees()) {
+                            return -1;
+                        }
+
+                        return 0;
+                    }
+                })
+                .forEach(company -> System.out.println(company.getName() + " " + company.getCityHeadquarters() + " " + company.getPurchaseList().size() + " " + company.getEmployees()));
+    }
+
+    // 9. ** Zwróć MAPĘ w której kluczem jest nazwa firmy, a wartością ilość pracowników w tej firmie (https://howtodoinjava.com/java8/collect-stream-to-map/)
+    public static Map<String, Integer> zwrocMapeNazwaIloscPracownikow(List<Company> companies) {
+        return companies.stream().collect(Collectors.toMap(company -> company.getName(), company -> company.getEmployees()));
+    }
+
+    // 11. Zwróć firmę która dokonała zakupów na największą kwotę
+    public static Optional<Company> zwrocFirmeZakupyNaMaxKwote(List<Company> companies) {
+        return companies.stream()
+                .max(Comparator.comparingDouble(company -> company.getPurchaseList()
+                        .stream()
+                        .mapToDouble(value -> value.getQuantity() * value.getProduct().getPrice())
+                        .sum())
+                );
+    }
+
+    // 14. Wypisz firmy które 15 stycznia 2018 kupiły "Network Switch"
+    public static void zwrocFirmyKtoreKupily15StyczNetworkSwitch(List<Company> companies) {
+        companies.stream()
+                .filter(company -> company.getPurchaseList().stream().map(purchase -> purchase.getPurchaseDate())
+                        .anyMatch(localDate -> localDate.isEqual(LocalDate.of(2018, 1, 15))))
+                .filter(company -> company.getPurchaseList().stream().map(purchase -> purchase.getProduct())
+                        .anyMatch(product -> product.getName().equalsIgnoreCase("network switch")))
+                .forEach(company -> System.out.println(company.getName() + " " + company.getCityHeadquarters()));
     }
 }
