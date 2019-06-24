@@ -1,8 +1,7 @@
 package com.model.player;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class Main {
     public static void main(String[] args) {
@@ -1145,5 +1144,51 @@ public class Main {
         // 20. *Wypisz 3 najlepszych graczy z Każdej gry dla każdego automatu Map<Arcade, Map<Game, List<String>>> (automat ma mapy w których znajdują się mappingi: dla zadanej gry lista 3 najlepszych graczy)
         // 21. Wypisz jaka gra była najbardziej popularna na którym automacie: Map<Arcade, Game>
 
+        System.out.println();
+        System.out.println();
+
+        System.out.println();
+        // 1. Posortuj i wypisz automaty po ilości rozegranych meczy
+        System.out.println("Automaty posortowane po ilości rozegranych meczy.");
+        wypiszPosortowanePoIlosciMeczy(arcades);
+
+        System.out.println();
+        // 2. Posortuj i wypisz automaty po ilości zapisanych wyników (ilość score)
+        System.out.println("Automaty posortowane po ilości zapisanych wyników.");
+        wypiszPosortowanePoIlosciZapisanychWynikow(arcades);
+
+        System.out.println();
+        // 4. Znajdź i wypisz wszystkie automaty z Gdańska
+        System.out.println("Automaty z Gdańska");
+        automatyGdansk(arcades);
+    }
+    // 1. Posortuj i wypisz automaty po ilości rozegranych meczy
+    public static void wypiszPosortowanePoIlosciMeczy(List<Arcade> arcades) {
+        arcades.stream().sorted((a1, a2) -> Integer.compare(a1.getGamesPlayed(), a2.getGamesPlayed()))
+                .forEach(arcade -> System.out.println(arcade.getName() + " " + arcade.getGamesPlayed()));
+    }
+
+    // 2. Posortuj i wypisz automaty po ilości zapisanych wyników (ilość score)
+    public static void wypiszPosortowanePoIlosciZapisanychWynikow(List<Arcade> arcades) {
+        arcades.stream().sorted((a1, a2) -> Integer.compare(a1.getScoreList().size(), a2.getScoreList().size()))
+                .forEach(arcade -> System.out.println(arcade.getName() + " " + arcade.getScoreList().size()));
+    }
+
+    // 3. Znadjź i zwróć automat który ma najwięcej zapisanych wyników z gry Mario
+//    public static Optional<Arcade> zwrocMaxScoreSizeMario(List<Arcade> arcades) {
+//        return arcades.stream()
+//                .filter(arcade -> arcade.getScoreList().stream().map(score -> score.getGame())
+//                .max(Comparator.comparingInt(score -> score.name().equals("Mario").count())));
+//    }
+//    public static Optional<Arcade> zwrocMaxScoreSizeMario(List<Arcade> arcades) {
+//        return arcades.stream()
+//                .max(Comparator.comparingInt(arcade -> arcade.getScoreList().stream()
+//                .filter(value -> value.getGame().name().equals("Mario")).count()));
+//    }
+
+    // 4. Znajdź i wypisz wszystkie automaty z Gdańska
+    public static void automatyGdansk(List<Arcade> arcades) {
+        arcades.stream().filter(arcade -> arcade.getCity().equals("Gdansk"))
+                .forEach(arcade -> System.out.println(arcade.getName() + " " + arcade.getCity()));
     }
 }

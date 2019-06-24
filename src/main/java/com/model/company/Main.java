@@ -498,23 +498,23 @@ public class Main {
 // 40. Wymyśl 5 ciekawych zapytań i spróbuj je zrealizować. Najciekawsze polecenie otrzyma nagrodę-niespodziankę z Baltimore :P
 
         System.out.println();
-        System.out.println("Wszystkie firmy");
+        System.out.println("1. Wszystkie firmy");
         wylistujWszystkieFirmy(companies);
 
         System.out.println();
-        System.out.println("wszystkie firmy Detroit/Kijów");
+        System.out.println("2. wszystkie firmy Detroit/Kijów");
         wylistujWszystkieZDetroit(companies);
 
         System.out.println();
-        System.out.println("firmy z Londynu posortowane rosnąco po pracownikach");
+        System.out.println("3. firmy z Londynu posortowane rosnąco po pracownikach");
         wylistujZLondonPosortowanePoPracownikachRosnąco(companies);
 
         System.out.println();
-        System.out.println("firmy z Londynu posortowane po zakupach i pracownikach");
+        System.out.println("4. firmy z Londynu posortowane po zakupach i pracownikach");
         wylistujLonSortZakupySortPracoww(companies);
 
         System.out.println();
-        System.out.println("firma z Kijowa zatrudniająca najwięcej pracowników");
+        System.out.println("5. firma z Kijowa zatrudniająca najwięcej pracowników");
         Optional<Company> optMaxKijev = zwrocCompanyKijevMaxEmployess(companies);
         if (optMaxKijev.isPresent()) {
             Company maxKijev = optMaxKijev.get();
@@ -522,7 +522,7 @@ public class Main {
         }
 
         System.out.println();
-        System.out.println("firma o najkrótszej nazwie");
+        System.out.println("6. firma o najkrótszej nazwie");
         Optional<String> optMinName = zwrocMinName(companies);
         if (optMinName.isPresent()) {
             String minName = optMinName.get();
@@ -530,7 +530,7 @@ public class Main {
         }
 
         System.out.println();
-        System.out.println("firma nie z Kijowa, Londynu i Detroit z najmniejsza liczbą kupionych produktów:");
+        System.out.println("7. firma nie z Kijowa, Londynu i Detroit z najmniejsza liczbą kupionych produktów:");
         Optional<Company> optnoKLDMinProd = noKiLoDeMinProducts(companies);
         if (optnoKLDMinProd.isPresent()) {
             Company noKLDminProd = optnoKLDMinProd.get();
@@ -538,7 +538,7 @@ public class Main {
         }
 
         System.out.println();
-        System.out.println("firmom z Kijowa i Detroit dodano 1-go pracownika");
+        System.out.println("8. firmom z Kijowa i Detroit dodano 1-go pracownika");
         dodajPracownikaKijowDetroit(companies);
         wylistujZLondonPosortowanePoPracownikachRosnąco(companies);
 
@@ -551,7 +551,21 @@ public class Main {
 //        Map<String, Integer> mapaNazwaIloscPrac = zwrocMapeNazwaIloscPracownikow(companies);
 //        System.out.println(mapaNazwaIloscPrac);
 
-        // 10.
+        System.out.println();
+        System.out.println("9. zwróć mapę, której kluczem jest nazwa, a wartością liczba pracowników");
+        Map<String, Integer> map = companies.stream().collect(Collectors.toMap(c -> c.getName(), c -> c.getEmployees(), (c1, c2) -> c1 + c2));
+        Set<Map.Entry<String, Integer>> entries = map.entrySet();
+        int liczba = 1;
+        for (Map.Entry<String, Integer> entry : entries) {
+            System.out.println(liczba + ". " + entry.getKey() + " " + entry.getValue());
+            liczba++;
+        }
+
+
+        // 10.** Zwróć Mapę w której kluczem jest miejscowość a wartością jest LISTA FIRM z tamtej miejscowości (Map<String, List<Company>) (https://stackoverflow.com/questions/24917053/collecting-hashmapstring-liststring-java-8)
+        System.out.println();
+        companies.stream()
+                .collect(Collectors.groupingBy(c -> c.getCityHeadquarters(), Collectors.mapping(c -> c.getName(), Collectors.toList())));
 
         // 11. Zwróć firmę która dokonała zakupów na największą kwotę
         System.out.println();
@@ -670,6 +684,14 @@ public class Main {
                         .mapToDouble(value -> value.getQuantity() * value.getProduct().getPrice())
                         .sum())
                 );
+    }
+
+    // 11.bis
+    public static Optional<Company> zwrocMax2(List<Company> companies) {
+        return companies.stream()
+                .max(Comparator.comparingDouble(company -> company.getPurchaseList().stream()
+                .mapToDouble(value -> value.getQuantity() * value.getProduct().getPrice())
+                .sum()));
     }
 
     // 14. Wypisz firmy które 15 stycznia 2018 kupiły "Network Switch"

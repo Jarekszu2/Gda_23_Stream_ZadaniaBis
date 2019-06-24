@@ -1,6 +1,6 @@
 package com.model.game;
 
-import java.util.Scanner;
+import java.util.*;
 
 public class Main {
     public static void main(String[] args) {
@@ -90,30 +90,46 @@ public class Main {
         // Dodatkowe rozwinięcie****:
         // stwórz mechanizm wczytywania stanu gry. Stan gry może być wczytany tylko na początku aplikacji ZANIM PODANE BĘDĄ ROZMIARY PLANSZY.
         // Aplikacja pyta o rozmiar planszy i w tym momencie powinniśmy móc załadować planszę. Opracowanie komendy/sposobu przyjęcia polecenia wczytania należy do użytkownika.
-        Gracz gracz = new Gracz(5,5);
 
+        Gracz gracz = new Gracz(5,5);
         Plansza plansza = new Plansza(10, gracz);
+
+//        boolean flagPaint = false;
+//        int counter = 1;
+//        List<Integer[]> list = new ArrayList<>();
 //        plansza.
 
 //        plansza.drawBox(10);
 
         System.out.println("Steruj ruchem gracza:");
+        System.out.println();
+//        plansza.drawBox(10);
+        System.out.println();
         plansza.drawMap();
         Scanner scanner = new Scanner(System.in);
         char znak = 'a';
         do {
             System.out.println();
-            System.out.println("Wybierz komendę: \na: Move up\nb: Move down\nc: Move left\nd: Move right\n\nq: Quit");
+            System.out.println("Wybierz komendę: \na: Move up\nb: Move down\nc: Move left\nd: Move right" +
+                    "\ne: Player change\nf: Paint\n\nq: Quit");
             znak = scanner.next().charAt(0);
             switch (znak) {
 
                 case 'a':
 //                    System.out.println("Move up");
-                    try {
-
-                        gracz.moveUp(plansza);
-                    } catch (EndOfWayException e) {
-                        System.out.println(e.getMessage());
+                    if (gracz.isFlagaPaint()) {
+                        try {
+                            gracz.moveUp(plansza);
+                        } catch (EndOfWayException e) {
+                            System.err.println(e.getMessage());
+                        }
+                        gracz.dodajPozycjeDoListy();
+                    } else {
+                        try {
+                            gracz.moveUp(plansza);
+                        } catch (EndOfWayException e) {
+                            System.err.println(e.getMessage());
+                        }
                     }
                     break;
                 case 'b':
@@ -121,20 +137,43 @@ public class Main {
                     try {
                         gracz.moveDown(plansza);
                     } catch (EndOfWayException e) {
-                        System.out.println(e.getMessage());
+                        System.err.println(e.getMessage());
                     }
                     break;
                 case 'c':
 //                    System.out.println("Move left");
-                    gracz.moveDown2();
+                    if (gracz.getPozycjaY() < plansza.getMAP_SIZE() - 1) {
+                        gracz.moveDown2();
+                    } else {
+                        try {
+                            throw new EndOfWayException();
+                        } catch (EndOfWayException e) {
+                            System.err.println(e.getMessage());
+                        }
+                    }
                     break;
                 case 'd':
                     System.out.println("Move up");
                     break;
+                case 'e':
+                    System.out.println("Entry a new sign for a Player:");
+                    char newSign = scanner.next().charAt(0);
+                    gracz.setZnakGracza(newSign);
+                    break;
+                case 'f':
+                    System.out.println("Paint");
+                    System.out.println("Get move.");
+                    gracz.setFlagaPaint(true);
+                    gracz.dodajPozycjeDoListy();
+//                    Integer[] integersf = new Integer[2];
+//                    integersf[0] = gracz.getPozycjaX();
+//                    integersf[1] = gracz.getPozycjaY();
+//                    list.add(integersf);
                 case 'q':
                     System.out.println("Quit");
                     break;
             }
+            System.out.println();
             plansza.drawMap();
         } while (znak != 'q');
     }
