@@ -542,18 +542,10 @@ public class Main {
         dodajPracownikaKijowDetroit(companies);
         wylistujZLondonPosortowanePoPracownikachRosnąco(companies);
 
-        // 4. Wylistuj wszystkie firmy z Warszawy. Posortuj je po ilości zakupów (rosnąco) i ilości pracowników (malejąco).
-        System.out.println();
-        wylistujLonSortZakupySortPracoww(companies);
-
-        // 9. ** Zwróć MAPĘ w której kluczem jest nazwa firmy, a wartością ilość pracowników w tej firmie (https://howtodoinjava.com/java8/collect-stream-to-map/)
-//        System.out.println();
-//        Map<String, Integer> mapaNazwaIloscPrac = zwrocMapeNazwaIloscPracownikow(companies);
-//        System.out.println(mapaNazwaIloscPrac);
 
         System.out.println();
         System.out.println("9. zwróć mapę, której kluczem jest nazwa, a wartością liczba pracowników");
-        Map<String, Integer> map = companies.stream().collect(Collectors.toMap(c -> c.getName(), c -> c.getEmployees(), (c1, c2) -> c1 + c2));
+        Map<String, Integer> map = zwrocMapeNazwaIloscPracownikow(companies);
         Set<Map.Entry<String, Integer>> entries = map.entrySet();
         int liczba = 1;
         for (Map.Entry<String, Integer> entry : entries) {
@@ -564,12 +556,22 @@ public class Main {
 
         // 10.** Zwróć Mapę w której kluczem jest miejscowość a wartością jest LISTA FIRM z tamtej miejscowości (Map<String, List<Company>) (https://stackoverflow.com/questions/24917053/collecting-hashmapstring-liststring-java-8)
         System.out.println();
-        companies.stream()
-                .collect(Collectors.groupingBy(c -> c.getCityHeadquarters(), Collectors.mapping(c -> c.getName(), Collectors.toList())));
+        System.out.println("10. Zwróć Mapę w której kluczem jest miejscowość a wartością jest LISTA FIRM z tamtej miejscowości");
+        Map<String, List<Company>> map1 = zwrocMapeNazwaFirmyListaFirm(companies);
+        map1.forEach((s, companies1) -> System.out.println(s + " " + companies1));
+
+        System.out.println();
+        Set<Map.Entry<String, List<Company>>> entrySet = map1.entrySet();
+        int counter = 1;
+        for (Map.Entry<String, List<Company>> stringListEntry : entrySet) {
+            System.out.println(counter + ". " + stringListEntry.getKey() + " ilość firm: " + stringListEntry.getValue().size());
+            counter++;
+        }
+
 
         // 11. Zwróć firmę która dokonała zakupów na największą kwotę
         System.out.println();
-        System.out.println("firma, która dokonała zakupów na najwiekszą kwotę: ");
+        System.out.println("11. firma, która dokonała zakupów na najwiekszą kwotę: ");
         Optional<Company> optMaxZakup = zwrocFirmeZakupyNaMaxKwote(companies);
         if (optMaxZakup.isPresent()) {
             Company maxZakup = optMaxZakup.get();
@@ -578,25 +580,37 @@ public class Main {
 
         // 14. Wypisz firmy które 15 stycznia 2018 kupiły "Network Switch"
         System.out.println();
-        System.out.println("firmy, które 15.01.2018 kupiły Network Switch: ");
+        System.out.println("14. firmy, które 15.01.2018 kupiły Network Switch: ");
         zwrocFirmyKtoreKupily15StyczNetworkSwitch(companies);
+
+        System.out.println();
+        System.out.println("6. firma z najkrótszą nazwą");
+        Optional<Company> optCompany62 = minNazwa(companies);
+        if (optCompany62.isPresent()) {
+            Company company62 = optCompany62.get();
+            System.out.println(company62.getName());
+        }
     }
 
+    // 1. Wylistuj (system out println) wszystkie firmy
     public static void wylistujWszystkieFirmy(List<Company> companies) {
         companies.stream().forEach(company -> System.out.println(company));
     }
 
+    // 2. Wylistuj wszystkie firmy które są z Detroit
     public static void wylistujWszystkieZDetroit(List<Company> companies) {
         companies.stream().filter(company -> company.getCityHeadquarters().equals("Detroit"))
                 .forEach(company -> System.out.println(company.getName() + " " + company.getCityHeadquarters()));
     }
 
+    // 3. Wylistuj wszystkie firmy z Londynu, posortuj je po ilości pracowników (rosnąco).
     public static void wylistujZLondonPosortowanePoPracownikachRosnąco(List<Company> companies) {
         companies.stream().filter(company -> company.getCityHeadquarters().equals("London"))
                 .sorted((c1, c2) -> Integer.compare(c1.getEmployees(), c2.getEmployees()))
                 .forEach(company -> System.out.println(company.getName() + " " + company.getCityHeadquarters() + " " + company.getEmployees()));
     }
 
+    // 4. Wylistuj wszystkie firmy z Warszawy. Posortuj je po ilości zakupów (rosnąco) i ilości pracowników (malejąco).
     public static void wylistujLonSortZakupySortPracoww(List<Company> companies) {
         companies.stream().filter(company -> company.getCityHeadquarters().equals("London"))
                 .sorted(new Comparator<Company>() {
@@ -620,60 +634,48 @@ public class Main {
                 }).forEach(company -> System.out.println(company.getName() + " " + company.getPurchaseList().size() + " " + company.getEmployees()));
     }
 
+    // 5. Zwróć firmę z największą ilością pracowników, która pochodzi z Kijowa.
     public static Optional<Company> zwrocCompanyKijevMaxEmployess(List<Company> companies) {
         return companies.stream().filter(company -> company.getCityHeadquarters().equals("Kijev"))
                 .max((c1, c2) -> Integer.compare(c1.getEmployees(), c2.getEmployees()));
     }
 
+    // 6. Zwróć firmę z najkrótszą nazwą
     public static Optional<String> zwrocMinName(List<Company> companies) {
         return companies.stream().map(company -> company.getName())
                 .min((n1, n2) -> Integer.compare(n1.length(), n2.length()));
     }
 
+    // 7. Zwróć firmę która nie pochodzi z Kijowa, Londynu i Detroit, która ma najmniej kupionych produktów.
     public static Optional<Company> noKiLoDeMinProducts(List<Company> companies) {
         return companies.stream()
                 .filter(company -> !company.getName().equals("London") || !company.getName().equals("Detroit") || !company.getName().equals("Kijev"))
                 .min((c1, c2) -> Integer.compare(c1.getPurchaseList().size(), c2.getPurchaseList().size()));
     }
 
+    // 8. Każdej firmie dodaj po 1 pracowniku, jeśli pochodzi z Kijowa lub Detroit
     public static void dodajPracownikaKijowDetroit(List<Company> companies) {
         companies.stream().filter(company -> company.getCityHeadquarters().equals("Kijev") || company.getCityHeadquarters().equals("Detroit"))
                 .forEach(company -> company.setEmployees(company.getEmployees() + 1));
     }
 
-    // public static OptionalDouble zad11(List<Company> companies) {
-    //     companies
-    //             .stream()
-    //             .max(Comparator.comparingDouble())
-    // }
-
-    // 4. Wylistuj wszystkie firmy z Warszawy. Posortuj je po ilości zakupów (rosnąco) i ilości pracowników (malejąco).
-    public static void wylistujLondonSortedZakupyPracownicy(List<Company> companies) {
-        companies.stream().filter(company -> company.getCityHeadquarters().equals("London"))
-                .sorted(new Comparator<Company>() {
-                    @Override
-                    public int compare(Company o1, Company o2) {
-                        if (o1.getPurchaseList().size() > o2.getPurchaseList().size()) {
-                            return -1;
-                        } else if (o1.getPurchaseList().size() < o2.getPurchaseList().size()) {
-                            return 1;
-                        }
-
-                        if (o1.getEmployees() > o2.getEmployees()) {
-                            return 1;
-                        } else if (o1.getEmployees() < o2.getEmployees()) {
-                            return -1;
-                        }
-
-                        return 0;
-                    }
-                })
-                .forEach(company -> System.out.println(company.getName() + " " + company.getCityHeadquarters() + " " + company.getPurchaseList().size() + " " + company.getEmployees()));
-    }
-
     // 9. ** Zwróć MAPĘ w której kluczem jest nazwa firmy, a wartością ilość pracowników w tej firmie (https://howtodoinjava.com/java8/collect-stream-to-map/)
     public static Map<String, Integer> zwrocMapeNazwaIloscPracownikow(List<Company> companies) {
-        return companies.stream().collect(Collectors.toMap(company -> company.getName(), company -> company.getEmployees()));
+        return companies.stream()
+                .collect(Collectors.toMap(company -> company.getName(), company -> company.getEmployees(), (e1, e2) -> e1 + e2));
+    }
+
+    // 10.** Zwróć Mapę w której kluczem jest miejscowość a wartością jest LISTA FIRM z tamtej miejscowości (Map<String, List<Company>) (https://stackoverflow.com/questions/24917053/collecting-hashmapstring-liststring-java-8)
+//        wartości to nazwy firm List<String>
+//        System.out.println();
+//        companies.stream()
+//                .collect(Collectors.groupingBy(c -> c.getCityHeadquarters(), Collectors.mapping(c -> c.getName(), Collectors.toList())));
+
+
+    // 10.** Zwróć Mapę w której kluczem jest miejscowość a wartością jest LISTA FIRM z tamtej miejscowości (Map<String, List<Company>) (https://stackoverflow.com/questions/24917053/collecting-hashmapstring-liststring-java-8)
+    public static Map<String, List<Company>> zwrocMapeNazwaFirmyListaFirm(List<Company> companies) {
+        return companies.stream()
+                .collect(Collectors.groupingBy(c -> c.getCityHeadquarters(), Collectors.mapping(c -> c, Collectors.toList())));
     }
 
     // 11. Zwróć firmę która dokonała zakupów na największą kwotę
@@ -702,5 +704,10 @@ public class Main {
                 .filter(company -> company.getPurchaseList().stream().map(purchase -> purchase.getProduct())
                         .anyMatch(product -> product.getName().equalsIgnoreCase("network switch")))
                 .forEach(company -> System.out.println(company.getName() + " " + company.getCityHeadquarters()));
+    }
+
+    // 6. Zwróć firmę z najkrótszą nazwą
+    public static Optional<Company> minNazwa(List<Company> companies) {
+        return companies.stream().min((c1, c2) -> Integer.compare(c1.getName().length(), c2.getName().length()));
     }
 }
