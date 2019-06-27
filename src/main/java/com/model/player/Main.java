@@ -1,6 +1,7 @@
 package com.model.player;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class Main {
@@ -1149,18 +1150,56 @@ public class Main {
 
         System.out.println();
         // 1. Posortuj i wypisz automaty po ilości rozegranych meczy
-        System.out.println("Automaty posortowane po ilości rozegranych meczy.");
+        System.out.println("1. Automaty posortowane po ilości rozegranych meczy.");
         wypiszPosortowanePoIlosciMeczy(arcades);
 
         System.out.println();
         // 2. Posortuj i wypisz automaty po ilości zapisanych wyników (ilość score)
-        System.out.println("Automaty posortowane po ilości zapisanych wyników.");
+        System.out.println("2. Automaty posortowane po ilości zapisanych wyników.");
         wypiszPosortowanePoIlosciZapisanychWynikow(arcades);
 
         System.out.println();
+        // 3. Znadjź i zwróć automat który ma najwięcej zapisanych wyników z gry Mario
+        System.out.println("3. Automat, który ma najwięcej wyników gry Mario.");
+        Optional<Map.Entry<Arcade, Long>> optMaxMario = maxArcadeOptional(arcades);
+        if (optMaxMario.isPresent()) {
+            Map.Entry<Arcade, Long> maxMario = optMaxMario.get();
+            System.out.println(maxMario.getKey().getName() + " ma " + maxMario.getValue() + " wpisów");
+        }
+
+        System.out.println();
         // 4. Znajdź i wypisz wszystkie automaty z Gdańska
-        System.out.println("Automaty z Gdańska");
+        System.out.println("4. Automaty z Gdańska");
         automatyGdansk(arcades);
+
+        // 5. Znajdź wszystkie wyniki z Mario i wypisz nazwy użytkowników które wystąpiły na więcej niż jednym automacie.
+        List<String> namesList = arcades.stream()
+                .map(arcade -> arcade.getScoreList()
+                        .stream()
+                        .filter(score -> score.getGame() == Game.MARIO)
+                        .map(score -> score.getPlayerName()).distinct().collect(Collectors.toList())) // po tym zostaną tylko unikalne nazwy użytkowników w mario, wiele list.
+                .flatMap(list -> list.stream())
+                .collect(Collectors.toList()); // teraz mamy jedną listę wszystkich imion.
+
+        List<String> namesThatComeUpTwiceOrMore = namesList.stream()
+                .filter(name -> Collections.frequency(namesList, name) > 1) // przez ten filtr przechodzą tylko imiona ktore wystepuja wiecej niz 1 raz
+                .collect(Collectors.toList());
+
+        System.out.println();
+        System.out.println("Nazwy użytkowników które wystąpiły na więcej niż jednym automacie: " + namesThatComeUpTwiceOrMore);
+
+        // teraz zrobię liczność wystąpień:
+        Map<String, Long> namesThatComeUpTwiceOrMoreMap = namesList.stream()
+                .filter(name -> Collections.frequency(namesList, name) > 1)
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+                .entrySet()
+                .stream()
+                .sorted(Map.Entry.comparingByValue())
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2, LinkedHashMap::new));
+
+        System.out.println();
+        System.out.println("Liczność wystąpień:");
+        namesThatComeUpTwiceOrMoreMap.entrySet().forEach(entry -> System.out.println(entry));
     }
     // 1. Posortuj i wypisz automaty po ilości rozegranych meczy
     public static void wypiszPosortowanePoIlosciMeczy(List<Arcade> arcades) {
@@ -1175,20 +1214,43 @@ public class Main {
     }
 
     // 3. Znadjź i zwróć automat który ma najwięcej zapisanych wyników z gry Mario
-//    public static Optional<Arcade> zwrocMaxScoreSizeMario(List<Arcade> arcades) {
-//        return arcades.stream()
-//                .filter(arcade -> arcade.getScoreList().stream().map(score -> score.getGame())
-//                .max(Comparator.comparingInt(score -> score.name().equals("Mario").count())));
-//    }
-//    public static Optional<Arcade> zwrocMaxScoreSizeMario(List<Arcade> arcades) {
-//        return arcades.stream()
-//                .max(Comparator.comparingInt(arcade -> arcade.getScoreList().stream()
-//                .filter(value -> value.getGame().name().equals("Mario")).count()));
-//    }
+    public static Optional<Map.Entry<Arcade, Long>> maxArcadeOptional(List<Arcade> arcades) {
+        return arcades.stream()
+                .collect(Collectors.toMap(arcade -> arcade, arcade ->
+                        arcade.getScoreList().stream().filter(score -> score.getGame() == Game.MARIO).count()))
+                .entrySet().stream().max(Map.Entry.comparingByValue());
+    }
 
     // 4. Znajdź i wypisz wszystkie automaty z Gdańska
     public static void automatyGdansk(List<Arcade> arcades) {
         arcades.stream().filter(arcade -> arcade.getCity().equals("Gdansk"))
                 .forEach(arcade -> System.out.println(arcade.getName() + " " + arcade.getCity()));
     }
+
+    // 5. Znajdź wszystkie wyniki z Mario i wypisz nazwy użytkowników które wystąpiły na więcej niż jednym automacie.
+//    public static void wynikiMarioINazwyUzytkownikowNeWiecejNiz1Automacie(List<Arcade> arcades) {
+//        arcades.stream()
+//                .map(arcade -> arcade.getScoreList())
+//                .flatMap(scores -> scores.stream())
+//                .filter(score -> score.getGame().equals("Mario"))
+//                .count() > 1
+//                .
+//    }
+
+    // 6. Znajdź wyniki najlepszego gracza gry BARBIE_DESTRUCTION. Jeśli gracze mają tyle samo punktów to drugim kryterium jest czas. Im krótszy czas gry, tym wyżej powinien być gracz w rankingu.
+//    public static int znajdzMaxScoreBARBIE_DESTRUCTION(List<Arcade> arcades) {
+//        arcades.stream()
+//                .map(arcade -> arcade.getScoreList())
+//                .flatMap(scores -> scores.stream())
+//                .filter(score -> score.getGame().equals("BARBIE_DESTRUCTION"))
+//                .map(score -> score.getScore())
+//                .max(new Comparator<Integer>() {
+//                    @Override
+//                    public int compare(Integer o1, Integer o2) {
+//                        if (o1.)
+//                    }
+//                });
+//    }
+
+
 }

@@ -710,4 +710,13 @@ public class Main {
     public static Optional<Company> minNazwa(List<Company> companies) {
         return companies.stream().min((c1, c2) -> Integer.compare(c1.getName().length(), c2.getName().length()));
     }
+
+    // 15. Znajdź firmę która kupuje najwięcej kawy
+//    public static Optional<Company> maxCoffe(List<Company> companies) {
+//        return companies.stream()
+//                .max(Comparator.comparingDouble(company -> company.getPurchaseList()
+//                .stream()
+//                .map(name -> name.getProduct().getName().equalsIgnoreCase("coffe, arabica") && name.getProduct().getName().equalsIgnoreCase("coffe, robusta"))
+//                .mapToDouble(value -> value.)))
+//    }
 }
