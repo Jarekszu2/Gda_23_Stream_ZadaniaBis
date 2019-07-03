@@ -1173,6 +1173,7 @@ public class Main {
         automatyGdansk(arcades);
 
         // 5. Znajdź wszystkie wyniki z Mario i wypisz nazwy użytkowników które wystąpiły na więcej niż jednym automacie.
+        // szukam listy imion graczy w grę Mario
         List<String> namesList = arcades.stream()
                 .map(arcade -> arcade.getScoreList()
                         .stream()
